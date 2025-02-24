@@ -3,25 +3,19 @@ import healpy as hp
 import os
 from os.path import join as opj
 
-import delensalot
-from delensalot.config.metamodel import DEFAULT_NotAValue as DNaV
-
-import delensalot.core.power.pospace as pospace
 from delensalot.utility.utils_hp import gauss_beam
-from delensalot.config.config_helper import LEREPI_Constants as lc
-from delensalot.config.metamodel.delensalot_mm_v2 import *
-from plancklens import utils
+from delensalot.config.metamodel.delensalot_mm_v3 import *
 
 delensalot_model = DELENSALOT_Model(
-    defaults_to = 'default_jointrec',
+    defaults_to = 'default_jointrec_v3',
     job = DELENSALOT_Job(
         jobs = ["generate_sim", "QE_lensrec", "MAP_lensrec"]
     ),
     analysis = DELENSALOT_Analysis(
-        TEMP_suffix = 'jointrec4',
-        key = 'pf_p',
-        simidxs = np.array([0]),
-        simidxs_mf = np.array([]),
+        TEMP_suffix = 'align3',
+        key = 'pwf_p',
+        idxs = np.array([0]),
+        idxs_mf = np.array([]),
         beam = 1.0,
         LM_max = (4000, 4000),
         lm_max_pri = (4200, 4200),
@@ -30,11 +24,11 @@ delensalot_model = DELENSALOT_Model(
         lmin_teb = (2, 2, 200),
         transfunction_desc = 'gauss_no_pixwin',
     ),
-    simulationdata = DELENSALOT_Simulation(
+    data_source = DELENSALOT_DataSource(
         flavour = 'pri',
         sec_info = {
             'lensing': {'component': ['p','w'],},
-            # 'birefringence': {'component': ['f']},
+            'birefringence': {'component': ['f']},
         },
         obs_info = {
             'noise_info': {
@@ -47,14 +41,14 @@ delensalot_model = DELENSALOT_Model(
         nlev = {'P': 0.5, 'T': 0.5/np.sqrt(2)},
         geominfo = ('healpix', {'nside': 2048}),
     ),
-    qerec = DELENSALOT_Qerec(
+    qerec = DELENSALOT_QErec(
         tasks = ["calc_fields"],
         cg_tol = 1e-5,
         subtract_QE_meanfield = True,
     ),
-    itrec = DELENSALOT_Itrec(
+    maprec = DELENSALOT_MAPrec(
         tasks = ["calc_fields"],
         itmax = 5,
-        cg_tol = 1e-7,
+        cg_tol = 1e-6,
     ),
 )
